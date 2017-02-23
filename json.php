@@ -191,9 +191,22 @@ function getHistoryData($runId) {
 
 // 获取存货列表
 if($type == "getlist") {
-	if($filter) {
+
+	if($relparent) {
+		$data = array();
+		$sql = "SELECT ".$f." FROM inventory WHERE cInvCode = '".$relparent."'";
+		//file_put_contents("log/".$runId.".txt", $sql."\r\n",FILE_APPEND);
+		$result = $db->find($sql);
+		if(count($result)){
+			//file_put_contents("log/".$runId.".txt", "cInvName = ".$result[$f]."\r\n",FILE_APPEND);
+			array_push($data,$result[$f]);
+		}
+		$dataj = json_encode($data);
+	}
+	else if($filter) {
 		$sql = "select cInvName from Inventory where cInvName like '%".$filter."%'";
 		//查询
+		//file_put_contents("log/".$runId.".txt", $sql."\r\n",FILE_APPEND);
 		$result = $db->findAll($sql);
 		$data = array("");
 		foreach ($result as $key => $value) {
@@ -203,6 +216,7 @@ if($type == "getlist") {
 			// $data =  array("请输入更详细的搜索条件！");
 		$dataj = json_encode($data);
 	} else {
+		//file_put_contents("log/".$runId.".txt", "Clean\r\n",FILE_APPEND);
 		$data =  array("");
 		$dataj = json_encode($data);
 	}
@@ -226,6 +240,34 @@ if($type == "getlist") {
 	//file_put_contents("log/".$runId.".txt", "-----------------------------------获取计量单位sql-----------------------------------".$runId."\r\n",FILE_APPEND);
 	if($relparent) {
 		$sql = "select ".$f." from ComputationUnit a, Inventory b where a.cComUnitCode = b.cComUnitCode AND b.cInvName = '".$relparent."'";
+		//file_put_contents("log/".$runId.".txt", $sql."\r\n",FILE_APPEND);
+		$result = $db->find($sql);
+		if(count($result)){
+			array_push($data,$result[$f]);
+		}
+		//file_put_contents("log/".$runId.".txt", $result[$f]."\r\n",FILE_APPEND);
+	}
+	$dataj = json_encode($data);
+}else if($type == "getcodedetail") {
+	// 获取存货详情
+	// 用tfs的方式获取以编码为索引的"inventory"表的信息【存货表】
+	//if($f=="cInvCode") file_put_contents("log/".$runId.".txt", "cInvName = ".$relparent."\r\n",FILE_APPEND);
+	$data = array();
+	if($relparent) {
+		$sql = "SELECT ".$f." FROM inventory WHERE cInvCode = '".$relparent."'";
+		$result = $db->find($sql);
+		if(count($result)){
+			//if($f=="cInvCode") file_put_contents("log/".$runId.".txt", "cInvCode = ".$result[$f]."\r\n",FILE_APPEND);
+			array_push($data,$result[$f]);
+		}
+	}
+	$dataj = json_encode($data);
+} else if($type == "getcodeUnitName") {
+	// 获取单位名称
+	$data = array();
+	//file_put_contents("log/".$runId.".txt", "-----------------------------------获取以编码为索引的计量单位sql-----------------------------------".$runId."\r\n",FILE_APPEND);
+	if($relparent) {
+		$sql = "select ".$f." from ComputationUnit a, Inventory b where a.cComUnitCode = b.cComUnitCode AND b.cInvCode = '".$relparent."'";
 		//file_put_contents("log/".$runId.".txt", $sql."\r\n",FILE_APPEND);
 		$result = $db->find($sql);
 		if(count($result)){
